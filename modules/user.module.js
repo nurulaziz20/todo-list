@@ -2,6 +2,7 @@ const prisma = require("../helpers/database");
 const Joi = require("joi");
 const { join } = require("@prisma/client/runtime");
 const { string } = require("joi");
+const bcrypt = require('bcrypt')
 
 
 class _user {
@@ -48,7 +49,10 @@ class _user {
         };
       }
 
-     
+     //bcrypt
+     body.password = bcrypt.hashSync(body.password, 10)
+
+
       const add = await prisma.user.create({
         data: {
           name: body.name,
@@ -93,7 +97,11 @@ class _user {
         }
       }
   
-  
+        //bcrypt update
+      if(body.password){
+        body.password = bcrypt.hashSync(body.password, 10)
+      }
+
       const update = await prisma.user.update({
         where: {
           id: body.id,
@@ -115,6 +123,43 @@ class _user {
         status: false,
         error,
       }
+    }
+  }
+  
+  deleteUser = async (id) =>{
+    try {
+         //validasi input dari body
+      const schema = Joi.number().required()
+  
+      const validation = schema.validate(id);
+  
+      if (validation.error) {
+        const errorDetails = validation.error.details.map(
+          (detail) => detail.message
+        )
+  
+        return {
+          status: false,
+          code: 422,
+          error: errorDetails.join(","),
+        }
+      }
+        const del = await prisma.user.delete({
+            where:{
+                id:id
+            }
+        })
+        return{
+            status: true,
+            data: del
+        }
+    } catch(error){
+        console.log('deleteUser user module Error: ', error)
+        
+        return{
+            status: false,
+            error
+        }
     }
   }
 }

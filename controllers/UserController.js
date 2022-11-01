@@ -29,5 +29,13 @@ UserController.put("/", async (req, res) => {
 
   response.sendResponse(res, update)
 })
+//delete user
+UserController.delete("/:id", async (req, res) => {
+    //req params adalah input dari client berupa json
+  const del = await m$user.deleteUser(Number(req.params.id))
+  // Response helper
+
+  response.sendResponse(res, del)
+})
 
 module.exports = UserController
