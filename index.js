@@ -1,31 +1,25 @@
-const { PrismaClient } = require('@prisma/client')
-const bcrypt = require ('bcrypt')
+const express = require("express");
+const cors = require("cors");
+const routes = require("./routes");
 
-const prisma = new PrismaClient()
+const app = express();
+const port = 8000;
 
-async function main() {
-  // ... you will write your Prisma Client queries here
-  const addUser = await prisma.user.create({
-    data: {
-        name: 'daru',
-        email: 'daru@contoh.com',
-        password: bcrypt.hashSync('12345', 10)
-    }
-  })
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-  console.log('addUser', addUser)
+app.get("/", async (req, res) => {
+  res.status(200).send({
+    status: true,
+    message: "Selamat datang di API hehe ayam",
+  });
+});
 
 
-  const listUser = await prisma.user.findMany()
-  console.log('listUser',listUser)
-}
+//routes api
+routes(app)
 
-main()
-  .then(async () => {
-    await prisma.$disconnect()
-  })
-  .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect()
-    process.exit(1)
-  })
+app.listen(port, () => {
+  console.log(`Server is listening on http://localhost:${port}`);
+});
